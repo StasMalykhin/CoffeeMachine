@@ -19,5 +19,4 @@ public class CoffeeMachineApplication {
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
-
 }

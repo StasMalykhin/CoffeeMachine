@@ -2,6 +2,7 @@ package com.github.stasmalykhin.coffeemachine.controller;
 
 import com.github.stasmalykhin.coffeemachine.dto.CoffeeMachineDTO;
 import com.github.stasmalykhin.coffeemachine.entity.CoffeeMachine;
+import com.github.stasmalykhin.coffeemachine.entity.CoffeeRecipe;
 import com.github.stasmalykhin.coffeemachine.service.CoffeeMachineService;
 import com.github.stasmalykhin.coffeemachine.service.CoffeeRecipeService;
 import com.github.stasmalykhin.coffeemachine.util.CustomResponse;
@@ -18,7 +19,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 /**
  * Обрабатывает запросы, связанные с кофемашиной
@@ -162,9 +162,9 @@ public class CoffeeMachineController {
         if (coffeeMachine.isOn()) {
             boolean nameOfRecipeHasBeenEntered = inputNameRecipe != null;
             if (nameOfRecipeHasBeenEntered) {
-                coffeeRecipeService.checkForCoffeeRecipeNotFound(inputNameRecipe);
+                CoffeeRecipe selectedRecipe = coffeeRecipeService.findCoffeeRecipeByName(inputNameRecipe);
                 boolean coffeeIsDone =
-                        coffeeMachineService.useIngredientsToMakeCoffee(coffeeMachine, inputNameRecipe);
+                        coffeeMachineService.useIngredientsToMakeCoffee(coffeeMachine, selectedRecipe);
                 if (coffeeIsDone) {
                     message = "В кофемашине сварили кофе " + inputNameRecipe;
                     return new ResponseEntity<>(new CustomResponse(message), HttpStatus.OK);

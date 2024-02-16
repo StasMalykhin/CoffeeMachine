@@ -1,6 +1,5 @@
 package com.github.stasmalykhin.coffeemachine.util;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +12,6 @@ import java.time.Instant;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 public class CustomResponse {
     private String message;
     private Instant currentTime;

@@ -1,26 +1,22 @@
 package com.github.stasmalykhin.coffeemachine.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
-
-import java.util.Date;
 
 /**
  * @author Stanislav Malykhin
  */
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "id")
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "coffee_machine")
-public class CoffeeMachine {
+public class CoffeeMachine extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
     private int water;
     private int milk;
     private int beans;

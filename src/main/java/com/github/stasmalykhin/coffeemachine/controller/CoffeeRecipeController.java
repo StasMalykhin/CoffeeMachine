@@ -1,7 +1,7 @@
 package com.github.stasmalykhin.coffeemachine.controller;
 
-import com.github.stasmalykhin.coffeemachine.entity.coffee.AbstractCoffeeRecipe;
-import com.github.stasmalykhin.coffeemachine.entity.coffee.Impl.NewCoffeeRecipe;
+import com.github.stasmalykhin.coffeemachine.dto.CoffeeRecipeDTO;
+import com.github.stasmalykhin.coffeemachine.entity.CoffeeRecipe;
 import com.github.stasmalykhin.coffeemachine.exception.CoffeeRecipeNotCreatedException;
 import com.github.stasmalykhin.coffeemachine.service.CoffeeRecipeService;
 import com.github.stasmalykhin.coffeemachine.util.CustomResponse;
@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Обрабатывает запросы, связанные с кофейными рецептами
@@ -39,14 +41,16 @@ import java.util.List;
 public class CoffeeRecipeController {
 
     private final CoffeeRecipeService coffeeRecipeService;
+    private final ModelMapper modelMapper;
 
     @Operation(summary = "Получить список всех кофейных рецептов")
     @ApiResponse(responseCode = "200", description = "Получен список всех кофейных рецептов",
             content = {@Content(mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = AbstractCoffeeRecipe.class)))})
+                    array = @ArraySchema(schema = @Schema(implementation = CoffeeRecipe.class)))})
     @GetMapping
-    public List<AbstractCoffeeRecipe> showAllCoffeeDrinks() {
-        return coffeeRecipeService.findAllCoffeeRecipes();
+    public List<CoffeeRecipeDTO> showAllCoffeeDrinks() {
+        List<CoffeeRecipe> recipes = coffeeRecipeService.findAllCoffeeRecipes();
+        return convertToCoffeeRecipeDTO(recipes);
     }
 
     @Operation(summary = "Удалить выбранный по названию кофейный рецепт")
@@ -63,8 +67,8 @@ public class CoffeeRecipeController {
     public ResponseEntity<HttpStatus> removeCoffeeRecipe(
             @Parameter(description = "название кофейнного рецепта")
             @RequestParam(value = "name", required = false) String inputNameRecipe) {
-        coffeeRecipeService.checkForCoffeeRecipeNotFound(inputNameRecipe);
-        coffeeRecipeService.deleteCoffeeRecipe(inputNameRecipe);
+        CoffeeRecipe recipeForRemoval = coffeeRecipeService.findCoffeeRecipeByName(inputNameRecipe);
+        coffeeRecipeService.deleteCoffeeRecipe(recipeForRemoval);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
@@ -82,7 +86,7 @@ public class CoffeeRecipeController {
                     content = {@Content(
                             schema = @Schema(implementation = CustomResponse.class))})})
     @PostMapping("/new")
-    public ResponseEntity<HttpStatus> createNewCoffeeRecipe(@RequestBody @Valid NewCoffeeRecipe newCoffeeRecipe,
+    public ResponseEntity<HttpStatus> createNewCoffeeRecipe(@RequestBody @Valid CoffeeRecipe newCoffeeRecipe,
                                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             StringBuilder errorMsg = new StringBuilder();
@@ -96,5 +100,12 @@ public class CoffeeRecipeController {
         coffeeRecipeService.checkCoffeeRecipeAlreadyExists(newCoffeeRecipe.name);
         coffeeRecipeService.saveCoffeeRecipe(newCoffeeRecipe);
         return ResponseEntity.ok(HttpStatus.CREATED);
+    }
+
+    private List<CoffeeRecipeDTO> convertToCoffeeRecipeDTO(List<CoffeeRecipe> recipes) {
+        return recipes
+                .stream()
+                .map(recipe -> modelMapper.map(recipe, CoffeeRecipeDTO.class))
+                .collect(Collectors.toList());
     }
 }

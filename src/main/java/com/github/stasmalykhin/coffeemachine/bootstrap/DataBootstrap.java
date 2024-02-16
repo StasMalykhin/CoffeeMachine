@@ -26,7 +26,7 @@ public class DataBootstrap implements ApplicationRunner {
         boolean databaseWithAirlinesIsNotFull = coffeeMachineService.checkFullnessOfDatabase();
         if (databaseWithAirlinesIsNotFull) {
             try {
-                coffeeMachineService.fillDatabase();
+                coffeeMachineService.fillDatabaseWithDefaultData();
             } catch (Exception e) {
                 log.error(String.format("Cannot fill database with coffee machines. Error=%s", e.getMessage()));
             }
@@ -34,7 +34,7 @@ public class DataBootstrap implements ApplicationRunner {
         boolean databaseWithCoffeeRecipesIsNotFull = coffeeRecipeService.checkFullnessOfDatabase();
         if (databaseWithCoffeeRecipesIsNotFull) {
             try {
-                coffeeRecipeService.fillDatabase();
+                coffeeRecipeService.fillDatabaseWithDefaultData();
             } catch (Exception e) {
                 log.error(String.format("Cannot fill database with coffee recipes. Error=%s", e.getMessage()));
             }

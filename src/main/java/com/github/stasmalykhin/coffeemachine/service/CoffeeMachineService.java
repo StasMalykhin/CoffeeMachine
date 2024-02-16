@@ -1,6 +1,8 @@
 package com.github.stasmalykhin.coffeemachine.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.stasmalykhin.coffeemachine.entity.CoffeeMachine;
+import com.github.stasmalykhin.coffeemachine.entity.CoffeeRecipe;
 import com.github.stasmalykhin.coffeemachine.exception.CoffeeMachineNotFoundException;
 import com.github.stasmalykhin.coffeemachine.repository.CoffeeMachineRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +10,7 @@ import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -21,15 +23,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CoffeeMachineService {
     private final CoffeeMachineRepository coffeeMachineRepository;
-    private final CoffeeRecipeService coffeeRecipeService;
-    @Value("${coffee-machine.water}")
-    private int water;
-    @Value("${coffee-machine.milk}")
-    private int milk;
-    @Value("${coffee-machine.beans}")
-    private int beans;
-    @Value("${coffee-machine.cups}")
-    private int cups;
+    private final ObjectMapper objectMapper;
+    @Value("#{${default-coffee-machine.ingredientsMap}}")
+    private Map<String, Integer> ingredientsCoffeeMachine;
+
 
     public CoffeeMachine findCoffeeMachineById(int id) {
         Optional<CoffeeMachine> foundCoffeeMachine = coffeeMachineRepository.findById(id);
@@ -46,15 +43,11 @@ public class CoffeeMachineService {
         saveCoffeeMachine(coffeeMachine);
     }
 
-    public boolean useIngredientsToMakeCoffee(CoffeeMachine coffeeMachine, String nameCoffeeRecipe) {
-        int water = coffeeRecipeService.getWaterByName(nameCoffeeRecipe);
-        int milk = coffeeRecipeService.getMilkByName(nameCoffeeRecipe);
-        int beans = coffeeRecipeService.getBeansByName(nameCoffeeRecipe);
-        int cups = coffeeRecipeService.getCupsByName(nameCoffeeRecipe);
+    public boolean useIngredientsToMakeCoffee(CoffeeMachine coffeeMachine, CoffeeRecipe recipe) {
         boolean enoughIngredients =
-                coffeeMachine.checkForIngredients(water, milk, beans, cups);
+                coffeeMachine.checkForIngredients(recipe.water, recipe.milk, recipe.beans, recipe.cups);
         if (enoughIngredients) {
-            coffeeMachine.useIngredients(water, milk, beans, cups);
+            coffeeMachine.useIngredients(recipe.water, recipe.milk, recipe.beans, recipe.cups);
             saveCoffeeMachine(coffeeMachine);
         }
         return enoughIngredients;
@@ -64,13 +57,9 @@ public class CoffeeMachineService {
         return coffeeMachineRepository.count() == 0;
     }
 
-    public void fillDatabase() {
+    public void fillDatabaseWithDefaultData() {
         log.info("Parameters of coffee machine have been added to BD");
-        coffeeMachineRepository.save(CoffeeMachine.builder()
-                .water(water)
-                .milk(milk)
-                .beans(beans)
-                .cups(cups)
-                .build());
+        CoffeeMachine coffeeMachine = objectMapper.convertValue(ingredientsCoffeeMachine, CoffeeMachine.class);
+        coffeeMachineRepository.save(coffeeMachine);
     }
 }

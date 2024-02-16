@@ -27,7 +27,7 @@ public class GlobalControllerExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private ResponseEntity<CustomResponse> handlerException(CoffeeMachineNotFoundException e) {
         String message = "Coffee machine with id is wasn't found!";
-        log.error(message, e);
+        log.error(message);
         return new ResponseEntity<>(new CustomResponse(message), HttpStatus.NOT_FOUND);
     }
 
@@ -35,14 +35,14 @@ public class GlobalControllerExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     private ResponseEntity<CustomResponse> handlerException(CoffeeRecipeNotFoundException e) {
         String message = "Coffee recipe with name is wasn't found!";
-        log.error(message, e);
+        log.error(message);
         return new ResponseEntity<>(new CustomResponse(message), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CoffeeRecipeNotCreatedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ResponseEntity<CustomResponse> handlerException(CoffeeRecipeNotCreatedException e) {
-        log.error(e.getMessage(), e);
+        log.error(e.getMessage());
         return new ResponseEntity<>(new CustomResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
@@ -50,7 +50,7 @@ public class GlobalControllerExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     private ResponseEntity<CustomResponse> handlerException(CoffeeRecipeAlreadyExistsException e) {
         String message = "Coffee recipe with name already exists!";
-        log.error(message, e);
+        log.error(message);
         return new ResponseEntity<>(new CustomResponse(message), HttpStatus.CONFLICT);
     }
 }

@@ -1,18 +1,24 @@
-package com.github.stasmalykhin.coffeemachine.entity.coffee.Impl;
+package com.github.stasmalykhin.coffeemachine.entity;
 
-import com.github.stasmalykhin.coffeemachine.entity.coffee.AbstractCoffeeRecipe;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
+import lombok.*;
+
 /**
- * Класс для создания новых кофейных рецептов.
- *
  * @author Stanislav Malykhin
  */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class NewCoffeeRecipe extends AbstractCoffeeRecipe {
+@Table(name = "coffee_recipe")
+public class CoffeeRecipe extends BaseEntity {
+
 
     @NotEmpty(message = "Name should not be empty")
     @Size(min = 2, max = 30, message = "Name should be between 2 and 30 characters")
@@ -25,8 +31,4 @@ public class NewCoffeeRecipe extends AbstractCoffeeRecipe {
     public int beans;
     @Min(value = 0, message = "Age should be greater than 0")
     public int cups;
-
-    public NewCoffeeRecipe() {
-
-    }
 }
